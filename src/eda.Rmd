@@ -1,0 +1,46 @@
+---
+title: "Amazon EDA"
+author: "Andrew Lim"
+date: '2017-06-09'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(jsonlite)
+library(lubridate)
+library(feather)
+```
+
+```{r}
+input_file <- "../data/reviews_Video_Games_5.json"
+
+raw_data <- stream_in(file(input_file))
+
+helpful_1 <- unlist(lapply(raw_data$helpful, '[', 1))
+helpful_2 <- unlist(lapply(raw_data$helpful, '[', 2))
+
+tidy_data <- raw_data %>% 
+  mutate(num_found_helpful = helpful_1,
+         num_found_unhelpful = helpful_2) %>% 
+  # mutate(time=mdy(reviewTime)) %>% 
+  select(-helpful, -reviewTime) %>% 
+  rename(reviewer_id = reviewerID,
+         reviewer_name = reviewerName,
+         review_text = reviewText)
+
+View(tidy_data)
+```
+
+```{r}
+# Writing data:
+write_feather(x = tidy_data,
+              path = "../results/tidy_data.feather")
+```
+
+
+
