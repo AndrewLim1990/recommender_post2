@@ -17,30 +17,29 @@ library(feather)
 ```
 
 ```{r}
-input_file <- "../data/reviews_Video_Games_5.json"
+ratings <- read_csv("../data/ratings_Movies_and_TV.csv", n_max = 1000000, col_names = FALSE)
 
-raw_data <- stream_in(file(input_file))
+colnames(ratings) <- c("reviewer_id", "asin", "overall", "review_time")
 
-helpful_1 <- unlist(lapply(raw_data$helpful, '[', 1))
-helpful_2 <- unlist(lapply(raw_data$helpful, '[', 2))
-
-tidy_data <- raw_data %>% 
-  mutate(num_found_helpful = helpful_1,
-         num_found_unhelpful = helpful_2) %>% 
-  # mutate(time=mdy(reviewTime)) %>% 
-  select(-helpful, -reviewTime) %>% 
-  rename(reviewer_id = reviewerID,
-         reviewer_name = reviewerName,
-         review_text = reviewText)
-
-View(tidy_data)
+# Writing data:
+write_feather(x = ratings,
+              path = "../results/movie_ratings.feather")
 ```
 
 ```{r}
-# Writing data:
-write_feather(x = tidy_data,
-              path = "../results/tidy_data.feather")
+title_price_df <- read_feather(path = "../results/meta_movies.feather")
+
+df <- ratings %>% 
+  left_join(title_price_df, by='asin')
+
+write_feather(x = df,
+              path = "../results/movie_df.feather")
 ```
+
+
+
+
+
 
 
 
