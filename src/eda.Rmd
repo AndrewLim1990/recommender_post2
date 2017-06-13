@@ -17,7 +17,7 @@ library(feather)
 ```
 
 ```{r}
-ratings <- read_csv("../data/ratings_Movies_and_TV.csv", n_max = 1000000, col_names = FALSE)
+ratings <- read_csv("../data/ratings_Movies_and_TV.csv", col_names = FALSE)
 
 colnames(ratings) <- c("reviewer_id", "asin", "overall", "review_time")
 
@@ -32,9 +32,14 @@ title_price_df <- read_feather(path = "../results/meta_movies.feather")
 df <- ratings %>% 
   left_join(title_price_df, by='asin')
 
+df <- df %>% 
+  filter(is.na(title) == FALSE) %>% 
+  filter(is.na(asin) == FALSE)
+
 write_feather(x = df,
               path = "../results/movie_df.feather")
 ```
+
 
 
 
